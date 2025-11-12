@@ -1,0 +1,228 @@
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FittGymPro — Mini App</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+                background: linear-gradient(to bottom right, #f0f4f8, #e2e8f0);
+            }
+            .tab { display: none; }
+            .tab.active { display: block; }
+            .nav-btn.active { color: #f97316; }
+            @keyframes fadeIn {
+              from {opacity: 0; transform: translateY(20px);}
+              to {opacity: 1; transform: translateY(0);}
+            }
+            .animate-fade-in {
+              animation: fadeIn 0.3s ease forwards;
+            }
+        </style>
+    </head>
+    <body class="min-h-screen flex flex-col justify-between">
+
+        <!-- HEADER -->
+        <header class="p-4 text-center bg-white shadow-md">
+            <h1 class="text-xl font-semibold text-gray-800">FittGymPro</h1>
+            <p class="text-gray-500 text-sm">Твоя ежедневная статистика</p>
+        </header>
+
+        <!-- MAIN TABS -->
+        <main id="tabs" class="flex-1 p-6">
+            <!-- Статистика -->
+            <div id="tab-stats" class="tab active text-center">
+              <div class="bg-white rounded-2xl shadow-lg w-full max-w-sm mx-auto p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 mb-4">📊 Статистика за сегодня</h2>
+
+                  <p class="text-gray-700 mb-2">Потреблено: <span id="kcal-value">—</span> из <span id="kcal-goal">—</span> ккал</p>
+                  <progress id="stat-bar" value="0" max="100" class="w-full h-3 rounded-lg mb-2"></progress>
+                  <p id="stat-prog" class="text-sm text-gray-500 mb-4">0%</p>
+
+                 <p id="macro-info" class="text-gray-600 text-sm mb-2">Б: — • Ж: — • У: —</p>
+                 <p id="water-info" class="text-gray-600 text-sm">💧 Вода: — л</p>
+                 <p id="workout-info" class="text-gray-600 text-sm">🏋️ Тренировки: — ккал</p>
+                  <p class="text-gray-500 text-sm mt-2">Цель: калории и вода из профиля</p>
+              </div>
+              <script src="/static/stats.js"></script>
+            </div>
+
+
+
+            <!-- Питание -->
+          <div id="tab-food" class="tab text-center">
+            <!-- Кнопка "Добавить" -->
+            <div class="flex justify-center mt-6">
+              <button onclick="openFoodModal()" class="bg-blue-500 text-white px-6 py-2 rounded-xl shadow hover:bg-blue-600 transition">
+                ➕ Добавить продукт
+              </button>
+            </div>
+
+            <!-- Модальное окно -->
+            <div id="foodModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+              <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-fade-in">
+                <button onclick="closeFoodModal()" class="absolute top-3 right-3 text-gray-400 hover:text-red-500">✕</button>
+
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Добавить продукт</h2>
+
+                <label class="block text-sm text-gray-700 mb-1">Название продукта</label>
+                <input id="food-name" type="text" class="w-full border border-gray-300 rounded-lg p-2 mb-2" placeholder="например: banana">
+                <p id="food-status" class="text-sm text-gray-500 mb-2"></p>
+
+                <label class="block text-sm text-gray-700 mb-1">Вес (в граммах)</label>
+                <input id="food-weight" type="number" class="w-full border border-gray-300 rounded-lg p-2 mb-3" placeholder="100">
+
+                <label class="block text-sm text-gray-700 mb-1">Приём пищи</label>
+                <select id="meal-type" class="w-full border border-gray-300 rounded-lg p-2 mb-3">
+                  <option value="завтрак">Завтрак</option>
+                  <option value="обед">Обед</option>
+                  <option value="ужин">Ужин</option>
+                  <option value="перекус">Перекус</option>
+                </select>
+
+                <div class="grid grid-cols-4 gap-2 mb-4 text-center">
+                  <div><p class="text-xs text-gray-500">Ккал</p><p id="calories" class="text-orange-600 font-semibold">—</p></div>
+                  <div><p class="text-xs text-gray-500">Белки</p><p id="proteins" class="text-green-600 font-semibold">—</p></div>
+                  <div><p class="text-xs text-gray-500">Жиры</p><p id="fats" class="text-yellow-600 font-semibold">—</p></div>
+                  <div><p class="text-xs text-gray-500">Углеводы</p><p id="carbs" class="text-blue-600 font-semibold">—</p></div>
+                </div>
+
+                <p id="save-status" class="text-center text-sm text-gray-600 mb-3"></p>
+
+                <div class="flex justify-center">
+                  <button onclick="saveFood()" class="bg-green-500 text-white px-5 py-2 rounded-xl hover:bg-green-600 transition">
+                    Сохранить продукт
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Контейнер списка -->
+            <hr class="my-5 border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Добавленные продукты</h3>
+            <div id="food-list" class="space-y-3"></div>
+
+            <script src="/static/food_api.js"></script>
+          </div>
+
+            <!-- Тренировки -->
+            <div id="tab-workout" class="tab text-center">
+              <h2 class="text-lg font-semibold text-gray-800 mb-3">🏋️ Тренировки</h2>
+              <form id="workout-form" class="bg-white p-4 rounded-2xl shadow-md max-w-sm mx-auto space-y-3 text-left">
+                  <label class="block text-sm text-gray-700">Тип тренировки</label>
+                  <input name="type" required class="w-full border rounded-lg p-2" placeholder="Например: бег, йога">
+
+                  <label class="block text-sm text-gray-700">Длительность (мин)</label>
+                  <input type="number" step="1" name="duration" required class="w-full border rounded-lg p-2">
+
+                  <label class="block text-sm text-gray-700">Сожжено калорий</label>
+                  <input type="number" step="1" name="calories" required class="w-full border rounded-lg p-2">
+
+                  <button class="bg-blue-500 text-white rounded-lg px-4 py-2 w-full">Добавить</button>
+              </form>
+
+              <div id="workout-result" class="mt-3"></div>
+              <div id="workout-list" class="mt-6 text-left max-w-sm mx-auto"></div>
+
+              <script src="/static/workout.js"></script>
+              <script>
+                  document.getElementById('workout-form').addEventListener('submit', handleWorkoutSubmit);
+              </script>
+            </div>
+
+
+            <!-- Вода -->
+            <div id="tab-water" class="tab text-center">
+              <h2 class="text-lg font-semibold text-gray-800 mb-3">💧 Учет воды</h2>
+              <p class="text-gray-600 mb-2">Нажми, чтобы добавить количество выпитой воды</p>
+              <div class="flex justify-center gap-3 mb-4">
+                <button onclick="addWater(100)" class="bg-cyan-500 text-white px-3 py-2 rounded-lg">+100 мл</button>
+                <button onclick="addWater(250)" class="bg-cyan-500 text-white px-3 py-2 rounded-lg">+250 мл</button>
+                <button onclick="addWater(500)" class="bg-cyan-500 text-white px-3 py-2 rounded-lg">+500 мл</button>
+              </div>
+              <div id="water-result" class="mb-3"></div>
+              <p class="text-gray-700">Всего за сегодня: <b><span id="water-total">0.00</span> л</b></p>
+              <script src="/static/water.js"></script>
+            </div>
+
+
+            <!-- Профиль -->
+            <div id="tab-profile" class="tab text-center">
+  <h2 class="text-lg font-semibold text-gray-800 mb-3">⚙️ Профиль</h2>
+  <form id="profile-form" class="bg-white p-4 rounded-2xl shadow-md max-w-sm mx-auto space-y-3 text-left">
+      <label class="block text-sm text-gray-700">Имя</label>
+      <input name="name" required class="w-full border rounded-lg p-2" placeholder="Ваше имя">
+
+      <label class="block text-sm text-gray-700">Пол</label>
+      <select name="gender" class="w-full border rounded-lg p-2">
+        <option value="male">Мужчина</option>
+        <option value="female">Женщина</option>
+      </select>
+
+      <label class="block text-sm text-gray-700">Возраст</label>
+      <input type="number" name="age" required class="w-full border rounded-lg p-2" placeholder="лет">
+
+      <label class="block text-sm text-gray-700">Рост (см)</label>
+      <input type="number" name="height" required class="w-full border rounded-lg p-2">
+
+      <label class="block text-sm text-gray-700">Вес (кг)</label>
+      <input type="number" name="weight" required class="w-full border rounded-lg p-2">
+
+      <label class="block text-sm text-gray-700">Активность</label>
+      <select name="activity" class="w-full border rounded-lg p-2">
+        <option value="low">Сидячий</option>
+        <option value="medium">Умеренная</option>
+        <option value="high">Высокая</option>
+      </select>
+
+      <label class="block text-sm text-gray-700">Цель</label>
+      <select name="goal" class="w-full border rounded-lg p-2">
+        <option value="lose">Похудеть</option>
+        <option value="keep">Поддерживать</option>
+        <option value="gain">Набрать</option>
+      </select>
+
+      <button class="bg-orange-500 text-white rounded-lg px-4 py-2 w-full">Сохранить</button>
+  </form>
+  <div id="profile-result" class="mt-4 text-gray-700"></div>
+  <script src="/static/profile.js"></script>
+  <script>
+      document.getElementById('profile-form').addEventListener('submit', handleProfileSubmit);
+  </script>
+</div>
+
+        </main>
+
+        <!-- NAVIGATION -->
+        <nav class="bg-white shadow-inner flex justify-around py-3 text-sm">
+            <button class="nav-btn flex flex-col items-center text-gray-600" onclick="showTab('stats', this)">
+                <span class="text-xl">📊</span><span>Статистика</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-600" onclick="showTab('food', this)">
+                <span class="text-xl">🍽</span><span>Питание</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-600" onclick="showTab('workout', this)">
+                <span class="text-xl">🏋️</span><span>Тренировки</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-600" onclick="showTab('water', this)">
+                <span class="text-xl">💧</span><span>Вода</span>
+            </button>
+            <button class="nav-btn flex flex-col items-center text-gray-600" onclick="showTab('profile', this)">
+                <span class="text-xl">⚙️</span><span>Профиль</span>
+            </button>
+        </nav>
+
+        <!-- JS -->
+        <script>
+            function showTab(tab, btn) {
+                document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+                document.getElementById('tab-' + tab).classList.add('active');
+
+                document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        </script>
+    </body>
+    </html>
